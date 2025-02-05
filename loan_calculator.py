@@ -3,26 +3,37 @@ from math import ceil
 from scipy.optimize import fsolve
 
 def calculate_installment(loan, annual_interest_rate, months):
-    """
-        formula A = P * (r * (1 + r) ** n) / ((1 + r) ** n - 1)
-        A - installment/вноска
-        P - principal/главница
-        r - interest/лихва
-        n - months count/брой месеци
-    """
-    interest = (annual_interest_rate / 100) / 12
-    installment = loan * (interest * (1 + interest) ** months) / ((1 + interest) ** months -1)
+
+    def af5(r: float, n: int) -> float:
+        """Изчислява 5-ти анюитетен фактор AF5(r, n)."""
+        return (r ** n * (r - 1)) / (r ** n - 1)
+
+    def annuity_payment(k: float, r: float, n: int) -> float:
+        """Изчислява размера на анюитетната вноска."""
+        return k * af5(r, n)
+
+    # Пример
+    k = loan  # Сума на кредита
+    annual_rate = annual_interest_rate / 100  # 12% годишна лихва
+    periods_per_year = 12  # Месечни плащания
+    n = months  # брой плащания
+
+    # Преобразуване на годишната лихва към месечна
+    r = (1 + annual_rate) ** (1 / periods_per_year)
+
+    # Изчисления
+    installment = annuity_payment(k, r, n) # Стойност на месечната вноска
 
     return installment
 
 def calculate_interest(loan_amount, num_payments, installment):
     # Усвояването е на един път като за лява част на уравнението се взема сумата на кредита
-    D_l = [installment] * num_payments  # Месечни вноски (еднакви)
-    S_l = [(l + 1) / 12 for l in range(num_payments)]  # Интервали за вноските в години (ежемесечно)
+    d_l = [installment] * num_payments  # Месечни вноски (еднакви)
+    s_l = [(l + 1) / 12 for l in range(num_payments)]  # Интервали за вноските в години (ежемесечно)
 
     # Функция за изчисление на сумите в уравнението
     def equation(x):
-        right_sum = sum(D_l[j] * (1 + x) ** -S_l[j] for j in range(len(D_l)))
+        right_sum = sum(d_l[j] * (1 + x) ** -s_l[j] for j in range(len(d_l)))
         return loan_amount - right_sum
 
     # Намиране на X чрез числен метод
