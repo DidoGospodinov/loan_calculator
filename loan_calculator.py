@@ -12,7 +12,6 @@ def calculate_installment(loan, annual_interest_rate, months):
         """Изчислява размера на анюитетната вноска."""
         return k * af5(r, n)
 
-    # Пример
     k = loan  # Сума на кредита
     annual_rate = annual_interest_rate / 100  # 12% годишна лихва
     periods_per_year = 12  # Месечни плащания
